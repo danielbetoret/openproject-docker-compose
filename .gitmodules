@@ -1,0 +1,4 @@
+[submodule "utils"]
+	path = utils
+	url = git@github.com:danielbetoret/utils.git
+	branch = openproject-docker-compose
