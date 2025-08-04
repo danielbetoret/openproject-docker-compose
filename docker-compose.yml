@@ -92,7 +92,7 @@ services:
         # traefik config
         - 'traefik.enable=true'
         - 'traefik.http.routers.${DOCKER_STACK_NAME}_proxy.rule=Host(`$HOST`)'
-        - 'traefik.http.services.${DOCKER_STACK_NAME}_proxy.loadbalancer.server.port=80'
+        - 'traefik.http.services.${DOCKER_STACK_NAME}_proxy.loadbalancer.server.port=8080'
         - 'traefik.http.routers.${DOCKER_STACK_NAME}_proxy.entrypoints=websecure'
         - 'traefik.http.routers.${DOCKER_STACK_NAME}_proxy.tls=true'
         - 'traefik.http.routers.${DOCKER_STACK_NAME}_proxy.tls.certresolver=leresolver'
