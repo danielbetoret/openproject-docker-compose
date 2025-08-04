@@ -54,6 +54,10 @@ services:
       POSTGRES_DB: ${DB_NAME}
     networks:
       - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
 
   cache:
     image: memcached
@@ -76,6 +80,8 @@ services:
       - frontend
       - backend
       - public
+    ports:
+      - 8081:8080
     depends_on:
       - db
       - cache
