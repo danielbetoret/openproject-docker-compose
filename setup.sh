@@ -81,11 +81,11 @@ else
     echo "pulled db image"
 fi
 
-if [[ $(docker image ls | grep "memcache") ]]; then
-    echo "memcache image already downloaded"
+if [[ $(docker image ls | grep "memcached") ]]; then
+    echo "memcached image already downloaded"
 else
-    docker pull memcache &> /dev/null
-    echo "pulled memcache image"
+    docker pull memcached &> /dev/null
+    echo "pulled memcached image"
 fi
 
 if [[ $(docker image ls | grep -E 'willfarrell/autoheal *1\.2\.0') ]]; then
