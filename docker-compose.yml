@@ -1,6 +1,9 @@
 networks:
   frontend:
   backend:
+  public:
+    external: true
+    name: ${DOCKER_PUBLIC_NETWORK}
 
 volumes:
   pgdata:
@@ -72,6 +75,7 @@ services:
     networks:
       - frontend
       - backend
+      - public
     depends_on:
       - db
       - cache
@@ -91,11 +95,11 @@ services:
       labels:
         # traefik config
         - 'traefik.enable=true'
-        - 'traefik.http.routers.${DOCKER_STACK_NAME}_proxy.rule=Host(`$HOST`)'
-        - 'traefik.http.services.${DOCKER_STACK_NAME}_proxy.loadbalancer.server.port=8080'
-        - 'traefik.http.routers.${DOCKER_STACK_NAME}_proxy.entrypoints=websecure'
-        - 'traefik.http.routers.${DOCKER_STACK_NAME}_proxy.tls=true'
-        - 'traefik.http.routers.${DOCKER_STACK_NAME}_proxy.tls.certresolver=leresolver'
+        - 'traefik.http.routers.${DOCKER_STACK_NAME}_web.rule=Host(`$HOST`)'
+        - 'traefik.http.services.${DOCKER_STACK_NAME}_web.loadbalancer.server.port=8080'
+        - 'traefik.http.routers.${DOCKER_STACK_NAME}_web.entrypoints=websecure'
+        - 'traefik.http.routers.${DOCKER_STACK_NAME}_web.tls=true'
+        - 'traefik.http.routers.${DOCKER_STACK_NAME}_web.tls.certresolver=leresolver'
 
   autoheal:
     image: willfarrell/autoheal:1.2.0
