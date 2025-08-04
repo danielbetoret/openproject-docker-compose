@@ -4,14 +4,26 @@ networks:
 
 volumes:
   pgdata:
+    external: true
+    name: ${DOCKER_STACK_NAME}_db_data
   opdata:
+    external: true
+    name: ${DOCKER_STACK_NAME}_openproject_data
 
-x-op-restart-policy: &restart_policy
-  restart: unless-stopped
+x-op-deploy-specification: &deploy_specification
+  deploy:
+    mode: replicated
+    replicas: 1
+    restart_policy:
+      condition: any
+      delay: 10s
+    resources:
+      limits:
+        cpus: '0.1'
 x-op-image: &image
   image: openproject/openproject:${TAG:-16-slim}
 x-op-app: &app
-  <<: [*image, *restart_policy]
+  <<: [*image, *deploy_specification]
   environment:
     OPENPROJECT_HTTPS: "${OPENPROJECT_HTTPS:-true}"
     OPENPROJECT_HOST__NAME: "${OPENPROJECT_HOST__NAME:-localhost:8080}"
@@ -25,36 +37,33 @@ x-op-app: &app
     # set to true to enable the email receiving feature. See ./docker/cron for more options
     IMAP_ENABLED: "${IMAP_ENABLED:-false}"
   volumes:
-    - "${OPDATA:-opdata}:/var/openproject/assets"
+    - "opdata:/var/openproject/assets"
 
 services:
   db:
     image: postgres:13
-    <<: *restart_policy
+    <<: *deploy_specification
     stop_grace_period: "3s"
     volumes:
-      - "${PGDATA:-pgdata}:/var/lib/postgresql/data"
+      - "pgdata:/var/lib/postgresql/data"
     environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-p4ssw0rd}
-      POSTGRES_DB: openproject
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-p4ssw0rd}
+      POSTGRES_DB: ${DB_NAME}
     networks:
       - backend
 
   cache:
     image: memcached
-    <<: *restart_policy
+    <<: *deploy_specification
     networks:
       - backend
 
   proxy:
-    build:
-      context: ./proxy
-      args:
-        APP_HOST: web
-    image: openproject/proxy
-    <<: *restart_policy
+    image: ${DOCKER_STACK_NAME}_proxy
+    <<: *deploy_specification
     ports:
-      - "${PORT:-8080}:80"
+      - ${PORT:-8080}:80
     depends_on:
       - web
     networks:
@@ -78,6 +87,10 @@ services:
       timeout: 3s
       retries: 3
       start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
 
   autoheal:
     image: willfarrell/autoheal:1.2.0
@@ -111,6 +124,8 @@ services:
   seeder:
     <<: *app
     command: "./docker/prod/seeder"
-    restart: on-failure
     networks:
       - backend
+    deploy:
+      restart_policy:
+        condition: on-failure
