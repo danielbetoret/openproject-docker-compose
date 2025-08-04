@@ -16,7 +16,6 @@ x-op-deploy-specification: &deploy_specification
     replicas: 1
     restart_policy:
       condition: any
-      delay: 10s
     resources:
       limits:
         cpus: '0.1'
@@ -71,7 +70,7 @@ services:
         # traefik config
         - 'traefik.enable=true'
         - 'traefik.http.routers.${DOCKER_STACK_NAME}_proxy.rule=Host(`$HOST`)'
-        - 'traefik.http.services.${DOCKER_STACK_NAME}_proxy.loadbalancer.server.port=$PORT'
+        - 'traefik.http.services.${DOCKER_STACK_NAME}_proxy.loadbalancer.server.port=80'
         - 'traefik.http.routers.${DOCKER_STACK_NAME}_proxy.entrypoints=websecure'
         - 'traefik.http.routers.${DOCKER_STACK_NAME}_proxy.tls=true'
         - 'traefik.http.routers.${DOCKER_STACK_NAME}_proxy.tls.certresolver=leresolver'
@@ -88,16 +87,16 @@ services:
       - seeder
     labels:
       - autoheal=true
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080${OPENPROJECT_RAILS__RELATIVE__URL__ROOT:-}/health_checks/default"]
-      interval: 10s
-      timeout: 3s
-      retries: 3
-      start_period: 30s
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:8080${OPENPROJECT_RAILS__RELATIVE__URL__ROOT:-}/health_checks/default"]
+    #   interval: 10s
+    #   timeout: 3s
+    #   retries: 3
+    #   start_period: 30s
     deploy:
       resources:
         limits:
-          cpus: '1'
+          cpus: '0.3'
 
   autoheal:
     image: willfarrell/autoheal:1.2.0
