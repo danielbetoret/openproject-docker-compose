@@ -65,15 +65,6 @@ services:
       - web
     networks:
       - frontend
-    deploy:
-      labels:
-        # traefik config
-        - 'traefik.enable=true'
-        - 'traefik.http.routers.${DOCKER_STACK_NAME}_proxy.rule=Host(`$HOST`)'
-        - 'traefik.http.services.${DOCKER_STACK_NAME}_proxy.loadbalancer.server.port=80'
-        - 'traefik.http.routers.${DOCKER_STACK_NAME}_proxy.entrypoints=websecure'
-        - 'traefik.http.routers.${DOCKER_STACK_NAME}_proxy.tls=true'
-        - 'traefik.http.routers.${DOCKER_STACK_NAME}_proxy.tls.certresolver=leresolver'
 
   web:
     <<: *app
@@ -97,6 +88,14 @@ services:
       resources:
         limits:
           cpus: '0.3'
+      labels:
+        # traefik config
+        - 'traefik.enable=true'
+        - 'traefik.http.routers.${DOCKER_STACK_NAME}_proxy.rule=Host(`$HOST`)'
+        - 'traefik.http.services.${DOCKER_STACK_NAME}_proxy.loadbalancer.server.port=80'
+        - 'traefik.http.routers.${DOCKER_STACK_NAME}_proxy.entrypoints=websecure'
+        - 'traefik.http.routers.${DOCKER_STACK_NAME}_proxy.tls=true'
+        - 'traefik.http.routers.${DOCKER_STACK_NAME}_proxy.tls.certresolver=leresolver'
 
   autoheal:
     image: willfarrell/autoheal:1.2.0
